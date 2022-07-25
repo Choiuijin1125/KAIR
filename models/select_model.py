@@ -17,6 +17,12 @@ def define_Model(opt):
 
     elif model == 'plain4':  # four inputs: L, k, sf, sigma
         from models.model_plain4 import ModelPlain4 as M
+        
+    elif model == 'plain5':  # four inputs: L, k, sf, sigma
+        from models.model_plain5 import ModelPlain5 as M
+        
+    elif model == 'plain8':  # four inputs: L, k, sf, sigma
+        from models.model_plain8 import ModelPlain8 as M        
 
     elif model == 'gan':     # one input: L
         from models.model_gan import ModelGAN as M

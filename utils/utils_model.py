@@ -48,7 +48,7 @@ def find_last_checkpoint(save_dir, net_type='G', pretrained_path=None):
     return init_iter, init_path
 
 
-def test_mode(model, L, mode=0, refield=32, min_size=256, sf=1, modulo=1):
+def test_mode(model, L, mode=0, refield=32, min_size=256, sf=1, modulo=1, aux=False):
     '''
     # ---------------------------------------
     # Kai Zhang (github: https://github.com/cszn)
@@ -82,7 +82,7 @@ def test_mode(model, L, mode=0, refield=32, min_size=256, sf=1, modulo=1):
     elif mode == 2:
         E = test_split(model, L, refield, min_size, sf, modulo)
     elif mode == 3:
-        E = test_x8(model, L, modulo, sf)
+        E = test_x8(model, L, modulo, sf, aux=aux)
     elif mode == 4:
         E = test_split_x8(model, L, refield, min_size, sf, modulo)
     return E
@@ -107,12 +107,15 @@ def test(model, L):
 '''
 
 
-def test_pad(model, L, modulo=16, sf=1):
+def test_pad(model, L, modulo=16, sf=1, aux=False):
     h, w = L.size()[-2:]
     paddingBottom = int(np.ceil(h/modulo)*modulo-h)
     paddingRight = int(np.ceil(w/modulo)*modulo-w)
     L = torch.nn.ReplicationPad2d((0, paddingRight, 0, paddingBottom))(L)
-    E = model(L)
+    if not aux:
+        E = model(L)
+    else:
+        E, _ =model(L)
     E = E[..., :h*sf, :w*sf]
     return E
 
@@ -183,8 +186,8 @@ def test_split(model, L, refield=32, min_size=256, sf=1, modulo=1):
 '''
 
 
-def test_x8(model, L, modulo=1, sf=1):
-    E_list = [test_pad(model, util.augment_img_tensor4(L, mode=i), modulo=modulo, sf=sf) for i in range(8)]
+def test_x8(model, L, modulo=1, sf=1, aux=False):
+    E_list = [test_pad(model, util.augment_img_tensor4(L, mode=i), modulo=modulo, sf=sf, aux=aux) for i in range(8)]
     for i in range(len(E_list)):
         if i == 3 or i == 5:
             E_list[i] = util.augment_img_tensor4(E_list[i], mode=8 - i)

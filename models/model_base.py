@@ -164,16 +164,17 @@ class ModelBase():
             state_dict = torch.load(load_path)
             if param_key in state_dict.keys():
                 state_dict = state_dict[param_key]
-            network.load_state_dict(state_dict, strict=strict)
+            network.load_state_dict(state_dict, strict=False)
         else:
             state_dict_old = torch.load(load_path)
-            if param_key in state_dict_old.keys():
-                state_dict_old = state_dict_old[param_key]
-            state_dict = network.state_dict()
-            for ((key_old, param_old),(key, param)) in zip(state_dict_old.items(), state_dict.items()):
-                state_dict[key] = param_old
-            network.load_state_dict(state_dict, strict=True)
-            del state_dict_old, state_dict
+            # if param_key in state_dict_old.keys():
+            #     state_dict_old = state_dict_old[param_key]
+            # state_dict = network.state_dict()
+            # for ((key_old, param_old),(key, param)) in zip(state_dict_old.items(), state_dict.items()):
+            #     state_dict[key] = param_old
+            # network.load_state_dict(state_dict, strict=True)
+            # del state_dict_old, state_dict
+            network.load_state_dict(state_dict_old, strict=False)
 
     # ----------------------------------------
     # save the state_dict of the optimizer
@@ -187,7 +188,9 @@ class ModelBase():
     # load the state_dict of the optimizer
     # ----------------------------------------
     def load_optimizer(self, load_path, optimizer):
-        optimizer.load_state_dict(torch.load(load_path, map_location=lambda storage, loc: storage.cuda(torch.cuda.current_device())))
+        pass
+        #optimizer.load_state_dict(torch.load(load_path, map_location=lambda storage, loc: storage.cuda(torch.cuda.current_device())))
+        
 
     def update_E(self, decay=0.999):
         netG = self.get_bare_model(self.netG)

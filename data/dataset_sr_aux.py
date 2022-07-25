@@ -1,10 +1,11 @@
+import os
 import random
 import numpy as np
 import torch.utils.data as data
 import utils.utils_image as util
 
 
-class DatasetSR(data.Dataset):
+class DatasetAuxSR(data.Dataset):
     '''
     # -----------------------------------------
     # Get L/H for SISR.
@@ -15,7 +16,7 @@ class DatasetSR(data.Dataset):
     '''
 
     def __init__(self, opt):
-        super(DatasetSR, self).__init__()
+        super(DatasetAuxSR, self).__init__()
         self.opt = opt
         self.n_channels = opt['n_channels'] if opt['n_channels'] else 3
         self.sf = opt['scale'] if opt['scale'] else 4
@@ -27,7 +28,8 @@ class DatasetSR(data.Dataset):
         # ------------------------------------
         self.paths_H = util.get_image_paths(opt['dataroot_H'])
         self.paths_L = util.get_image_paths(opt['dataroot_L'])
-
+        self.paths_L_Aux = util.get_image_paths(opt['dataroot_L_Aux'])
+        
         assert self.paths_H, 'Error: H path is empty.'
         if self.paths_L and self.paths_H:
             assert len(self.paths_L) == len(self.paths_H), 'L/H mismatch - {}, {}.'.format(len(self.paths_L), len(self.paths_H))
@@ -56,6 +58,12 @@ class DatasetSR(data.Dataset):
             L_path = self.paths_L[index]
             img_L = util.imread_uint(L_path, self.n_channels)
             img_L = util.uint2single(img_L)
+            
+            L_path_aux = self.paths_L_Aux[index]
+            #print(os.path.splitext(L_path_aux)[0]+'x4.png')
+            img_L_aux = util.imread_uint(L_path_aux, self.n_channels)
+            img_L_aux = util.uint2single(img_L_aux)
+            
 
         else:
             # --------------------------------
@@ -70,13 +78,14 @@ class DatasetSR(data.Dataset):
         if self.opt['phase'] == 'train':
 
             H, W, C = img_L.shape
-
+            
             # --------------------------------
             # randomly crop the L patch
             # --------------------------------
             rnd_h = random.randint(0, max(0, H - self.L_size))
             rnd_w = random.randint(0, max(0, W - self.L_size))
             img_L = img_L[rnd_h:rnd_h + self.L_size, rnd_w:rnd_w + self.L_size, :]
+            img_L_aux = img_L_aux[rnd_h:rnd_h + self.L_size, rnd_w:rnd_w + self.L_size, :]
 
             # --------------------------------
             # crop corresponding H patch
@@ -88,17 +97,18 @@ class DatasetSR(data.Dataset):
             # augmentation - flip and/or rotate
             # --------------------------------
             mode = random.randint(0, 7)
-            img_L, img_H = util.augment_img(img_L, mode=mode), util.augment_img(img_H, mode=mode)
+            img_L, img_H, img_L_aux = util.augment_img(img_L, mode=mode), util.augment_img(img_H, mode=mode), util.augment_img(img_L_aux, mode=mode)
 
         # ------------------------------------
         # L/H pairs, HWC to CHW, numpy to tensor
         # ------------------------------------
-        img_H, img_L = util.single2tensor3(img_H), util.single2tensor3(img_L)
+        
+        img_H, img_L, img_L_aux = util.single2tensor3(img_H), util.single2tensor3(img_L), util.single2tensor3(img_L_aux)
 
         if L_path is None:
             L_path = H_path
 
-        return {'L': img_L, 'H': img_H, 'L_path': L_path, 'H_path': H_path}
+        return {'L': img_L, 'L_aux':img_L_aux, 'H': img_H, 'L_path': L_path, 'L_aux_path':L_path_aux, 'H_path': H_path}
 
     def __len__(self):
         return len(self.paths_H)

@@ -1,0 +1,1 @@
+python -m torch.distributed.launch --nproc_per_node=2 --master_port=12346 main_train_psnr.py --opt options/swinir/train_swinv2ir_sr_classical_x4_aux_modify_hf.json  --dist True

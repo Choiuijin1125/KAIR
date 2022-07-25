@@ -1,6 +1,7 @@
 from collections import OrderedDict
 import torch
 import torch.nn as nn
+import torchvision
 from torch.optim import lr_scheduler
 from torch.optim import Adam
 
@@ -23,6 +24,7 @@ class ModelPlain(ModelBase):
         self.opt_train = self.opt['train']    # training option
         self.netG = define_G(opt)
         self.netG = self.model_to_device(self.netG)
+        self.gaussian_filter = torchvision.transforms.GaussianBlur((5,5), sigma=(1., 5.0))
         if self.opt_train['E_decay'] > 0:
             self.netE = define_G(opt).to(self.device).eval()
 

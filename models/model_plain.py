@@ -206,10 +206,10 @@ class ModelPlain(ModelBase):
     # ----------------------------------------
     # test / inference x8
     # ----------------------------------------
-    def testx8(self):
+    def testx8(self, aux=False):
         self.netG.eval()
         with torch.no_grad():
-            self.E = test_mode(self.netG, self.L, mode=3, sf=self.opt['scale'], modulo=1)
+            self.E = test_mode(self.netG, self.L, mode=3, sf=self.opt['scale'], modulo=1, aux=aux)
         self.netG.train()
 
     # ----------------------------------------

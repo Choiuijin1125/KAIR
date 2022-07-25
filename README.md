@@ -22,7 +22,8 @@ sh train.sh
     ├── ensemble.py
     ```
 
-3. generate each model's prediction image
+3. put test datasets in `testsets` folder and change test_dir in configuration. 
+4. generate each model's prediction image
 ```
 sh test.sh
 ```

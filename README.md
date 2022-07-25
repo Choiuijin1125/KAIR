@@ -22,7 +22,17 @@ sh train.sh
     ├── ensemble.py
     ```
 
-3. put test datasets in `testsets` folder and change test_dir in configuration. 
+3. put test datasets in `testsets` folder and change `test_dir` in each configs. configs are in `options/swinir`
+
+    ```
+    KAIR
+    ├── ...
+    ├── options               
+    │   ├── train_swinv2ir_sr_classical_x4.json ## swinv2ir_sr_classical_patch48_x4_external_data
+    │   ├── train_swinv2ir_sr_classical_x4_aux_modify.json ## swinv2ir_sr_classical_patch48_x4_external_data_aux_modify
+    │   ├── train_swinv2ir_sr_classical_x4_aux_modify_hf.json ## swinv2ir_sr_classical_patch48_x4_external_data_aux_modify_hf
+    ```
+
 4. generate each model's prediction image
 ```
 sh test.sh
